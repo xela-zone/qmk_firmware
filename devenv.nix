@@ -17,18 +17,13 @@
     clang-tools
   ];
 
-  # Custom scripts (aliases) available inside the environment
   scripts = {
     build-xela.exec = "qmk compile -kb keychron/q3_max/ansi_encoder -km xela --compiledb";
     flash.exec = ''
       qmk flash -kb keychron/q3_max/ansi_encoder -km xela
-      echo ""
-      echo "Waiting 5 seconds. If your keyboard works, press Ctrl+C to cancel default reflash."
+      echo "Waiting 5 seconds before reflashing default binary..."
       sleep 5
-        echo ""
-        echo "No cancel detected within 5 seconds. offering to reflashing default binary..."
-        qmk flash keychron_q3_max_ansi_encoder_default.bin
-      fi
+      qmk flash keychron_q3_max_ansi_encoder_default.bin
     '';
   };
 
