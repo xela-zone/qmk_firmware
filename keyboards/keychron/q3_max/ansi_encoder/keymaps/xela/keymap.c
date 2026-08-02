@@ -51,33 +51,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 };
 #endif // ENCODER_MAP_ENABLE
 
-bool rgb_matrix_indicators_user(void) {
-    // If the FN layer is active
-    if (IS_LAYER_ON(FN)) {
-        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-            for (uint8_t col = 0; col < MATRIX_COLS; col++) {
-                // Get the LED index mapped to this matrix coordinate
-                uint8_t led_idx = g_led_config.matrix_co[row][col];
-
-                // If this switch has an LED connected to it
-                if (led_idx != NO_LED) {
-                    // Read the keycode from the keymaps array stored in Flash memory (PROGMEM)
-                    uint16_t keycode = pgm_read_word(&keymaps[FN][row][col]);
-
-                    // If the key is NOT transparent (_______ / KC_TRNS)
-                    if (keycode != KC_TRNS) {
-                        // Light up active keys in bright Cyan
-                        rgb_matrix_set_color(led_idx, 0, 255, 255);
-                    } else {
-                        // Light up background keys in a dim blue
-                        rgb_matrix_set_color(led_idx, 0, 0, 20);
-                    }
-                }
-            }
-        }
-    }
-    return true;
-}
 
 
 #if defined(LK_WIRELESS_ENABLE) || defined(KC_BLUETOOTH_ENABLE)
@@ -93,3 +66,32 @@ void keyboard_post_init_user(void) {
 #endif
 }
 
+bool rgb_matrix_indicators_user(void) {
+    // If the FN layer is active
+    if (IS_LAYER_ON(FN)) {
+        for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
+            for (uint8_t col = 0; col < MATRIX_COLS; col++) {
+                // Get the LED index mapped to this matrix coordinate
+                uint8_t led_idx = g_led_config.matrix_co[row][col];
+
+                // If this switch has an LED connected to it
+                if (led_idx != NO_LED) {
+                    // Read the keycode from the keymaps array stored in Flash memory (PROGMEM)
+                    uint16_t keycode = pgm_read_word(&keymaps[FN][row][col]);
+
+                    // Highlight dangerous keys in Red
+                    if (keycode == QK_BOOT || keycode == QK_CLEAR_EEPROM) {
+                        rgb_matrix_set_color(led_idx, 255, 0, 0);
+                    } else if (keycode != KC_TRNS) {
+                        // Light up active keys in bright Cyan
+                        rgb_matrix_set_color(led_idx, 0, 255, 255);
+                    } else {
+                        // Light up background keys in a dim blue
+                        rgb_matrix_set_color(led_idx, 0, 0, 20);
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
