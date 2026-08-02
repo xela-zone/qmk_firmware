@@ -78,3 +78,18 @@ bool rgb_matrix_indicators_user(void) {
     }
     return true;
 }
+
+
+#if defined(LK_WIRELESS_ENABLE) || defined(KC_BLUETOOTH_ENABLE)
+extern uint16_t backlit_disable_time;
+#endif
+
+void keyboard_post_init_user(void) {
+#if defined(LK_WIRELESS_ENABLE) || defined(KC_BLUETOOTH_ENABLE)
+    backlit_disable_time = 300;
+#endif
+#if defined(RGB_MATRIX_ENABLE) && RGB_MATRIX_TIMEOUT > 0
+    rgb_matrix_disable_timeout_set(300000);
+#endif
+}
+
