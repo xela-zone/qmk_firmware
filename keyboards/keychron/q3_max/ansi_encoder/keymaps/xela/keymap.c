@@ -51,8 +51,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 };
 #endif // ENCODER_MAP_ENABLE
 
-
-
 #if defined(LK_WIRELESS_ENABLE) || defined(KC_BLUETOOTH_ENABLE)
 extern uint16_t backlit_disable_time;
 #endif
@@ -64,6 +62,20 @@ void keyboard_post_init_user(void) {
 #if defined(RGB_MATRIX_ENABLE) && RGB_MATRIX_TIMEOUT > 0
     rgb_matrix_disable_timeout_set(300000);
 #endif
+}
+
+static const uint16_t dangerous_keys[] = {
+    QK_BOOT,
+    QK_CLEAR_EEPROM,
+};
+
+static bool is_dangerous_key(uint16_t keycode) {
+    for (size_t i = 0; i < ARRAY_SIZE(dangerous_keys); i++) {
+        if (dangerous_keys[i] == keycode) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool rgb_matrix_indicators_user(void) {
@@ -80,7 +92,7 @@ bool rgb_matrix_indicators_user(void) {
                     uint16_t keycode = pgm_read_word(&keymaps[FN][row][col]);
 
                     // Highlight dangerous keys in Red
-                    if (keycode == QK_BOOT || keycode == QK_CLEAR_EEPROM) {
+                    if (is_dangerous_key(keycode)) {
                         rgb_matrix_set_color(led_idx, 255, 0, 0);
                     } else if (keycode != KC_TRNS) {
                         // Light up active keys in bright Cyan
