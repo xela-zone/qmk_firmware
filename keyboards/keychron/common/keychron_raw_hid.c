@@ -20,6 +20,9 @@
 #include "raw_hid.h"
 #include "version.h"
 #include "language.h"
+
+__attribute__((weak)) void raw_hid_receive_user(uint8_t *data, uint8_t length) {}
+
 #ifdef FACTORY_TEST_ENABLE
 #    include "factory_test.h"
 #endif
@@ -264,6 +267,7 @@ bool kc_raw_hid_rx(uint8_t src, uint8_t *data, uint8_t length) {
 
 #    endif
         default:
+            raw_hid_receive_user(data, length);
             return false;
     }
 
