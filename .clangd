@@ -1,4 +1,0 @@
-CompileFlags:
-  Compiler: arm-none-eabi-gcc
-  Add:
-    - -Wno-unknown-warning-option
