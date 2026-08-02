@@ -74,10 +74,10 @@
 
 // #define RGB_MATRIX_TIMEOUT_INFINITE 0xFFFFFFFF
 #ifdef LED_MATRIX_ENABLE
-#    define DECIDE_TIME(t, duration) (duration == 0 ? LED_MATRIX_TIMEOUT_INFINITE : ((t > duration) ? t : duration))
+#    define DECIDE_TIME(t, duration) (t == 0 ? LED_MATRIX_TIMEOUT_INFINITE : ((t > duration) ? t : duration))
 #endif
 #ifdef RGB_MATRIX_ENABLE
-#    define DECIDE_TIME(t, duration) (duration == 0 ? RGB_MATRIX_TIMEOUT_INFINITE : ((t > duration) ? t : duration))
+#    define DECIDE_TIME(t, duration) (t == 0 ? RGB_MATRIX_TIMEOUT_INFINITE : ((t > duration) ? t : duration))
 #endif
 
 #define INDICATOR_SET(s) memcpy(&indicator_config, &s##_config, sizeof(indicator_config_t));
@@ -458,12 +458,7 @@ void indicator_set(wt_state_t state, uint8_t host_index) {
                 indicator_timer_cb((void *)&indicator_config.type);
             }
 #if defined(LED_MATRIX_ENABLE) || defined(RGB_MATRIX_ENABLE)
-#    ifdef KEYCOMBO_CONN_SWITCH_ENABLE
-            if (host_index & USB_IND_MASK)
-                indicator_set_backlit_timeout(DECIDE_TIME(0, 0));
-            else
-#    endif
-                indicator_set_backlit_timeout(DECIDE_TIME(backlit_disable_time * 1000, indicator_config.duration));
+            indicator_set_backlit_timeout(DECIDE_TIME(backlit_disable_time * 1000, indicator_config.duration));
 #endif
 #if defined WIN_LOCK_LED_PIN
             gpio_write_pin(WIN_LOCK_LED_PIN, keymap_config.no_gui ? WIN_LOCK_LED_PIN_ON_STATE : !WIN_LOCK_LED_PIN_ON_STATE);
