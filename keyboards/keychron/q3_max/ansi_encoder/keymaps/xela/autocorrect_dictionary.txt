@@ -1,9 +1,18 @@
 # Comprehensive QMK Autocorrect Dictionary for xela keymap
 # Includes Getreuer's expanded dictionary + common developer & English typos
 
-# Custom / User Typos
-tyhpos        -> typos
-tyhthoss      -> typos
+# Custom / Discovered User Typos
+isntead       -> instead
+somthing      -> something
+sohuld        -> should
+anytihng      -> anything
+pelase        -> please
+:whne         -> when
+definitly     -> definitely
+defualt       -> default
+perfer        -> prefer
+:giut         -> git
+stauts        -> status
 
 # 10 most common words
 :htere        -> there
