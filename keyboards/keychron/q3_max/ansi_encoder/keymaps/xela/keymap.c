@@ -33,6 +33,10 @@ enum tap_dance_actions {
     TD_LOCK,
 };
 
+enum custom_keycodes {
+    RESET_PALETTE = QK_USER_0,
+};
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [BASE] = LAYOUT_tkl_ansi(
@@ -46,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     [FN] = LAYOUT_tkl_ansi(
         QK_BOOT,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  _______,  _______,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  LUMINO,   _______,  _______,            LUMINO,
         _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-        LUMINO,   UG_NEXT,  UG_VALU,  UG_HUEU,  UG_SATU,  UG_SPDU,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  QK_CLEAR_EEPROM,    _______,
+        LUMINO,   UG_NEXT,  UG_VALU,  UG_HUEU,  UG_SATU,  UG_SPDU,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RESET_PALETTE, QK_CLEAR_EEPROM, _______,
         _______,  UG_PREV,  UG_VALD,  UG_HUED,  UG_SATD,  UG_SPDD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
         _______,            _______,  _______,  _______,  _______,  BAT_LVL,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
         _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______,            _______),
@@ -168,3 +172,48 @@ bool rgb_matrix_indicators_user(void) {
     }
     return true;
 }
+
+// --- Noctalia Dynamic Theme Sync ---
+#include "palettefx.h"
+#if defined(RAW_ENABLE)
+#    include "raw_hid.h"
+#endif
+
+static uint16_t g_noctalia_live_palette[16];
+static bool     g_has_live_palette = false;
+
+const uint16_t* palettefx_get_palette_data(void) {
+    if (g_has_live_palette) {
+        return g_noctalia_live_palette;
+    }
+    return palettefx_get_palette_data_by_index(PALETTEFX_AFTERBURN);
+}
+
+#if defined(RAW_ENABLE)
+void raw_hid_receive_user(uint8_t *data, uint8_t length) {
+    if (length >= 31 && data[0] == 0x77) {
+        for (uint8_t i = 0; i < 15; i++) {
+            uint16_t low  = data[1 + i * 2];
+            uint16_t high = data[2 + i * 2];
+            g_noctalia_live_palette[i] = low | (high << 8);
+        }
+        g_noctalia_live_palette[15] = g_noctalia_live_palette[14];
+        g_has_live_palette = true;
+    }
+}
+#endif
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case RESET_PALETTE:
+            if (record->event.pressed) {
+                g_has_live_palette = false;
+            }
+            return false;
+    }
+    return true;
+}
+
+
+
+
