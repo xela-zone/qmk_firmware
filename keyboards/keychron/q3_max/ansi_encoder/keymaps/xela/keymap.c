@@ -46,7 +46,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [FN] = LAYOUT_tkl_ansi(
         QK_BOOT,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  _______,  _______,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  LUMINO,   _______,  _______,            LUMINO,
-        _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+        _______,  BT_HST1,  BT_HST2,  BT_HST3,  P2P4G,    _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            DB_TOGG,
         LUMINO,   UG_NEXT,  UG_VALU,  UG_HUEU,  UG_SATU,  UG_SPDU,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  RESET_PALETTE, QK_CLEAR_EEPROM, _______,
         _______,  UG_PREV,  UG_VALD,  UG_HUED,  UG_SATD,  UG_SPDD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
         _______,            _______,  _______,  _______,  _______,  BAT_LVL,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
@@ -98,6 +98,7 @@ tap_dance_action_t tap_dance_actions[] = {
 
 
 void keyboard_post_init_user(void) {
+    debug_enable = true;
     rgb_matrix_mode(RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_FLOW);
     uint8_t palette_index = PALETTEFX_AFTERBURN;
     rgb_matrix_sethsv(RGB_MATRIX_HUE_STEP * palette_index, 255, 255);
@@ -108,6 +109,7 @@ void keyboard_post_init_user(void) {
 static const uint16_t dangerous_keys[] = {
     QK_BOOT,
     QK_CLEAR_EEPROM,
+    DB_TOGG,
 };
 
 static bool is_dangerous_key(uint16_t keycode) {
@@ -120,6 +122,14 @@ static bool is_dangerous_key(uint16_t keycode) {
 }
 
 bool rgb_matrix_indicators_user(void) {
+    if (rgb_matrix_get_val() == 0) {
+        return false;
+    }
+
+    if (host_keyboard_led_state().caps_lock) {
+        rgb_matrix_set_color(CAPS_LOCK_INDEX, 255, 60, 0);
+    }
+
     // If the FN layer is active
     if (IS_LAYER_ON(FN)) {
         for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
@@ -146,7 +156,7 @@ bool rgb_matrix_indicators_user(void) {
             }
         }
     }
-    return true;
+    return false;
 }
 
 // --- Noctalia Dynamic Theme Sync ---
@@ -190,11 +200,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-void os_state_indicate(void) {
-    if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(CAPS_LOCK_INDEX, 255, 60, 0);
-    }
-}
+
+
+
 
 
 
