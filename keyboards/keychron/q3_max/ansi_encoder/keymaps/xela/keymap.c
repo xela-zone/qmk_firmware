@@ -16,9 +16,6 @@
 
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
-#if defined(AUTOCORRECT_ENABLE)
-#    include "process_autocorrect.h"
-#endif
 
 
 enum layers {
@@ -99,17 +96,6 @@ tap_dance_action_t tap_dance_actions[] = {
     [TD_LOCK] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, td_lock_finished, td_lock_reset),
 };
 
-#if defined(DIP_SWITCH_ENABLE) && defined(AUTOCORRECT_ENABLE)
-bool dip_switch_update_mask_user(uint32_t state) {
-    bool active = (state & (1 << 0)) != 0;
-    if (active) {
-        autocorrect_enable();
-    } else {
-        autocorrect_disable();
-    }
-    return true;
-}
-#endif
 
 void keyboard_post_init_user(void) {
     rgb_matrix_mode(RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_FLOW);
@@ -134,16 +120,6 @@ static bool is_dangerous_key(uint16_t keycode) {
 }
 
 bool rgb_matrix_indicators_user(void) {
-#if defined(AUTOCORRECT_ENABLE)
-    if (autocorrect_is_enabled()) {
-        uint8_t esc_led = g_led_config.matrix_co[0][0]; // ESC key LED
-        if (esc_led != NO_LED) {
-            // Pastel green (Mint): R=120, G=220, B=140
-            rgb_matrix_set_color(esc_led, 120, 220, 140);
-        }
-    }
-#endif
-
     // If the FN layer is active
     if (IS_LAYER_ON(FN)) {
         for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
@@ -213,6 +189,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 }
+
+void os_state_indicate(void) {
+    if (host_keyboard_led_state().caps_lock) {
+        rgb_matrix_set_color(CAPS_LOCK_INDEX, 255, 60, 0);
+    }
+}
+
 
 
 
