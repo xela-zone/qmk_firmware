@@ -599,7 +599,9 @@ void wireless_event_task(void) {
                 wireless_enter_sleep();
                 break;
             case EVT_HID_INDICATOR:
-                led_state = event.params.led;
+                if (event.params.led != 0x07) {
+                    led_state = event.params.led;
+                }
                 break;
             case EVT_HID_SET_PROTOCOL:
                 wireless_hid_set_protocol(event.params.protocol);
