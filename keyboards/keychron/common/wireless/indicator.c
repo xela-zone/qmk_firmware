@@ -720,6 +720,8 @@ void LED_NONE_INDICATORS_KB(void) {
 
 #    if defined(LED_MATRIX_DRIVER_SHUTDOWN_ENABLE) || defined(RGB_MATRIX_DRIVER_SHUTDOWN_ENABLE)
 bool LED_DRIVER_ALLOW_SHUTDOWN(void) {
+    if (rgb_matrix_get_val() == 0) return true;
+
 #        if defined(NUM_LOCK_INDEX)
     if (host_keyboard_led_state().num_lock) return false;
 #        endif

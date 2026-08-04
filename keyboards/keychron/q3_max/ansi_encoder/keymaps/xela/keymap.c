@@ -123,8 +123,10 @@ static bool is_dangerous_key(uint16_t keycode) {
 
 bool rgb_matrix_indicators_user(void) {
     if (rgb_matrix_get_val() == 0) {
+        rgb_matrix_set_color(CAPS_LOCK_INDEX, 0, 0, 0);
         return false;
     }
+
 
     if (host_keyboard_led_state().caps_lock) {
         rgb_matrix_set_color(CAPS_LOCK_INDEX, 255, 60, 0);
