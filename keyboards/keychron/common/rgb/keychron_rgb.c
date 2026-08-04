@@ -402,6 +402,8 @@ void kc_rgb_matrix_rx(bool usb, uint8_t *data, uint8_t length) {
 }
 
 void os_state_indicate(void) {
+    if (rgb_matrix_get_val() == 0) return;
+
 #    if defined(RGB_MATRIX_SLEEP) || defined(LED_MATRIX_SLEEP)
 #        if defined(LK_WIRELESS_ENABLE) || defined(KC_BLUETOOTH_ENABLE)
     if (get_transport() == TRANSPORT_USB && USB_DRIVER.state == USB_SUSPENDED) return;
