@@ -16,6 +16,7 @@
 
 #include QMK_KEYBOARD_H
 #include "keychron_common.h"
+#include "usb_device_state.h"
 
 
 enum layers {
@@ -122,11 +123,12 @@ static bool is_dangerous_key(uint16_t keycode) {
 }
 
 bool rgb_matrix_indicators_user(void) {
-    if (rgb_matrix_get_val() == 0) {
+    if (rgb_matrix_get_suspend_state() ||
+        usb_device_state_get_configure_state() == USB_DEVICE_STATE_SUSPEND ||
+        rgb_matrix_get_val() == 0) {
         rgb_matrix_set_color(CAPS_LOCK_INDEX, 0, 0, 0);
         return false;
     }
-
 
     if (host_keyboard_led_state().caps_lock) {
         rgb_matrix_set_color(CAPS_LOCK_INDEX, 255, 60, 0);
@@ -204,9 +206,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 bool led_update_user(led_t led_state) {
     if (led_state.caps_lock && led_state.num_lock && led_state.scroll_lock) {
+        usb_device_state_set_leds(0);
         return false;
     }
     return true;
+}
+
+void suspend_power_down_user(void) {
+    rgb_matrix_set_color(CAPS_LOCK_INDEX, 0, 0, 0);
 }
 
 
