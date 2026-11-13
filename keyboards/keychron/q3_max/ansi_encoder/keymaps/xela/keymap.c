@@ -100,10 +100,8 @@ tap_dance_action_t tap_dance_actions[] = {
 
 void keyboard_post_init_user(void) {
     debug_enable = true;
-    rgb_matrix_mode(RGB_MATRIX_COMMUNITY_MODULE_PALETTEFX_FLOW);
-    uint8_t palette_index = PALETTEFX_AFTERBURN;
-    rgb_matrix_sethsv(RGB_MATRIX_HUE_STEP * palette_index, 255, 255);
-    rgb_matrix_set_speed_noeeprom(128);
+    rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_COLOR);
+    rgb_matrix_sethsv_noeeprom(128, 220, 80); // Dim teal fallback when OpenRGB is offline
     rgb_matrix_enable_noeeprom();
 }
 
@@ -160,45 +158,12 @@ bool rgb_matrix_indicators_user(void) {
             }
         }
     }
-    return false;
+    return true;
 }
-
-// --- Noctalia Dynamic Theme Sync ---
-#include "palettefx.h"
-#if defined(RAW_ENABLE)
-#    include "raw_hid.h"
-#endif
-
-static uint16_t g_noctalia_live_palette[16];
-static bool     g_has_live_palette = false;
-
-const uint16_t* palettefx_get_palette_data(void) {
-    if (g_has_live_palette) {
-        return g_noctalia_live_palette;
-    }
-    return palettefx_get_palette_data_by_index(PALETTEFX_AFTERBURN);
-}
-
-#if defined(RAW_ENABLE)
-void raw_hid_receive_user(uint8_t *data, uint8_t length) {
-    if (length >= 31 && data[0] == 0x77) {
-        for (uint8_t i = 0; i < 15; i++) {
-            uint16_t low  = data[1 + i * 2];
-            uint16_t high = data[2 + i * 2];
-            g_noctalia_live_palette[i] = low | (high << 8);
-        }
-        g_noctalia_live_palette[15] = g_noctalia_live_palette[14];
-        g_has_live_palette = true;
-    }
-}
-#endif
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RESET_PALETTE:
-            if (record->event.pressed) {
-                g_has_live_palette = false;
-            }
             return false;
     }
     return true;
